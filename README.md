@@ -1,4 +1,3 @@
-# candy-crush
 <h1>Candy Crush game. Desktop version</h1>
 <ul>
   <li>This project was made with HTML5, CSS3, pure JavaScript</li>
