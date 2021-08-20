@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function createBoard() {
       for (let i = 0; i < width*width; i++) {
         const square = document.createElement('div');
-        square.setAttribute('draggable', true);
+        square.setAttribute('draggable', true); //square.setAttribute('touchable', true);
         square.setAttribute('id', i);
         let randomColor = Math.floor(Math.random() * candyColors.length);
         square.style.backgroundImage = candyColors[randomColor];
@@ -33,7 +33,19 @@ document.addEventListener('DOMContentLoaded', () => {
     let colorBeingReplaced;
     let squareIdBeingDragged;
     let squareIdBeingReplaced;
-    
+
+    //touching the candy?
+    /*
+    let colorBeingTouched;
+    let squareIdBeingTouched;
+    */
+    //touchstart, touchmove, touchend events
+    /*
+    squares.forEach(square => square.addEventListener('touchstart', touchStart));
+    squares.forEach(square => square.addEventListener('touchmove', touchMove));
+    squares.forEach(square => square.addEventListener('touchend', touchEnd));
+    */
+
     squares.forEach(square => square.addEventListener('dragstart', dragStart));
     squares.forEach(square => square.addEventListener('dragend', dragEnd));
     squares.forEach(square => square.addEventListener('dragover', dragOver));
@@ -46,6 +58,14 @@ document.addEventListener('DOMContentLoaded', () => {
         squareIdBeingDragged = parseInt(this.id);
         // this.style.backgroundImage = ''
     }
+
+    
+      /*
+      function touchStart() {
+        colorBeingTouched = this.style.backgroundImage;
+        squareIdBeingTouched = parseInt(this.id);
+      }
+      */
     
     function dragOver(e) {
         e.preventDefault();
@@ -79,6 +99,20 @@ document.addEventListener('DOMContentLoaded', () => {
         } else  squares[squareIdBeingDragged].style.backgroundImage = colorBeingDragged;
     }
     
+    /*
+      function touchEnd() {
+        let validMoves = [squareIdBeingTouched -1 , squareIdBeingTouched -width, squareIdBeingTouched +1, squareIdBeingTouched +width];
+        let validMove = validMoves.includes(squareIdBeingReplaced);
+    
+        if (squareIdBeingReplaced && validMove) {
+            squareIdBeingReplaced = null;
+        }  else if (squareIdBeingReplaced && !validMove) {
+           squares[squareIdBeingReplaced].style.backgroundImage = colorBeingReplaced;
+           squares[squareIdBeingTouched].style.backgroundImage = colorBeingTouched;
+        } else  squares[squareIdBeingTouched].style.backgroundImage = colorBeingTouched;
+      }
+      */
+
     //drop candies once some have been cleared
     function moveIntoSquareBelow() {
         for (i = 0; i < 55; i ++) {
@@ -95,8 +129,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    
     ///Checking for Matches
+
+    //check for five column matches
+    function checkColumnForFive() {
+      for (i = 0; i < 31; i ++) {
+        let columnOfFive = [i, i+width, i+width*2, i+width*3, i+width*4];
+        let decidedColor = squares[i].style.backgroundImage;
+        const isBlank = squares[i].style.backgroundImage === '';
+  
+        if(columnOfFive.every(index => squares[index].style.backgroundImage === decidedColor && !isBlank)) {
+          score += 5;
+          scoreDisplay.innerHTML = score;
+          columnOfFive.forEach(index => {
+          squares[index].style.backgroundImage = '';
+          })
+        }
+      }
+    }
+    checkColumnForFive();
+
+
+    //check for five row matches
+    function checkRowForFive() {
+        for (i = 0; i < 59; i ++) {
+          let rowOfFive = [i, i+1, i+2, i+3, i+4];
+          let decidedColor = squares[i].style.backgroundImage;
+          const isBlank = squares[i].style.backgroundImage === '';
+    
+          const notValid = [4, 5, 6, 7, 12, 13, 14, 15, 20, 21, 22, 23, 28, 29, 30, 31, 36, 37, 38, 39, 44, 45, 46, 47, 52, 53, 54, 55];
+          if (notValid.includes(i)) continue;
+    
+          if(rowOfFive.every(index => squares[index].style.backgroundImage === decidedColor && !isBlank)) {
+            score += 5;
+            scoreDisplay.innerHTML = score;
+            rowOfFive.forEach(index => {
+            squares[index].style.backgroundImage = '';
+            })
+          }
+        }
+      }
+      checkRowForFive();
+
     //for row of Four
       function checkRowForFour() {
         for (i = 0; i < 60; i ++) {
@@ -177,6 +251,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Checks carried out indefintely
     window.setInterval(function(){
+        checkRowForFive();
+        checkColumnForFive();
         checkRowForFour();
         checkColumnForFour();
         checkRowForThree();
